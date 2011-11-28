@@ -1,0 +1,125 @@
+#
+# Author: Nick Karanatsios <nickkaranatsios@gmail.com>
+#
+# Copyright (C) 2008-2011 NEC Corporation
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License, version 2, as
+# published by the Free Software Foundation.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along
+# with this program; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+#
+
+
+import "c/dependencies"
+
+
+################################################################################
+# Main tasks
+################################################################################
+
+desc "Build trema apps."
+task :default => [
+  :topology_client,
+  :path_resolver_client,
+  :authenticator,
+  :redirector
+]
+
+
+trema_apps = sys.expand_path( "." )
+trema_home = sys.expand_path( "../trema" )
+trema_include = "#{trema_home}/src/lib"
+openflow_include = "#{trema_home}/objects/openflow"
+
+def dependency name
+  file = ".#{ name }.dependency"
+  var[ :clean ] << file
+  ".#{ name }.dependency"
+end
+
+import "clean"
+
+
+desc "Cleanup generated files."
+gen Clean
+var[ :clean ].include %w( **/*.{o,so,log} )
+
+
+desc "Cleanup everything."
+task :distclean => :clean
+
+
+desc "Generate build.rb."
+task :buildrb do
+  sys "rant-import --force --imports c/dependencies,clean,build.rb"
+  sys "chmod +x build.rb"
+end
+
+var :CFLAGS => "-I/usr/lib/ruby/1.8/i686-linux -I/usr/lib/ruby/1.8/i686-linux -D_FILE_OFFSET_BITS=64  -fPIC -g -std=gnu99 -D_GNU_SOURCE -fno-strict-aliasing -Wall -Wextra -Wformat=2 -Wcast-qual -Wcast-align -Wwrite-strings -Wconversion -Wfloat-equal -Wpointer-arith" 
+var :LDFLAGS => "-L. -L/usr/lib -Wl,-Bsymbolic -lruby1.8 -lpthread -lrt -ldl -lcrypt -lm -lc"
+
+
+src = FileList[ "#{ trema_apps }/topology/libtopology*.c",
+  "#{ trema_apps }/topology/topology_service_*.c",
+  "#{ trema_apps }/topology/topology-client*.c" ]
+topology_obj = src.ext( "o" )
+gen Rule, '.o' => '.c' do | t |
+  sys "gcc -I#{ trema_apps }/topology -I#{ trema_apps }/routing_switch -I#{ trema_include } -I#{ openflow_include } #{ var :CFLAGS } -c -o #{ t.name } #{ t.source }"
+end
+desc "Build topology client"
+task :topology_client => [ "topology/topology_client.so" ]
+file "topology/topology_client.so" => topology_obj do | t |
+  sys "gcc -shared -o #{ t.name } #{ topology_obj } #{ var :LDFLAGS }"
+end
+
+
+src = FileList[ "#{ trema_apps }/routing_switch/libpathresolver*.c",
+  "#{ trema_apps }/path_resolver_client/*.c" ]
+path_resolver_obj = src.ext( "o" )
+gen Rule, '.o' => '.c' do | t |
+  sys "gcc -I#{ trema_apps }/topology -I#{ trema_include } -I#{ openflow_include } #{ var :CFLAGS } -c -o #{ t.name } #{ t.source }"
+end
+desc "Build path resolver client"
+task :path_resolver_client => [ "path_resolver_client/path_resolver_client.so" ]
+file "path_resolver_client/path_resolver_client.so" => path_resolver_obj do | t |
+  sys "gcc -shared -o #{ t.name } #{ path_resolver_obj } #{ var :LDFLAGS }"
+end
+
+
+src = FileList[ "#{ trema_apps }/redirectable_routing_switch/*authenticator*.c" ]
+authenticator_obj = src.ext( "o" )
+gen Rule, '.o' => '.c' do | t |
+  sys "gcc -I#{ trema_include } -I#{ openflow_include } #{ var :CFLAGS } -c -o #{ t.name } #{ t.source }"
+end
+desc "Build authenticator"
+task :authenticator => [ "redirectable_routing_switch/authenticator.so" ]
+file "redirectable_routing_switch/authenticator.so" => authenticator_obj do | t |
+  sys "gcc -shared -o #{ t.name } #{ authenticator_obj } #{ var :LDFLAGS }"
+end
+
+
+src = FileList[ "#{ trema_apps }/redirectable_routing_switch/*redirector*.c" ]
+redirector_obj = src.ext( "o" )
+gen Rule, '.o' => '.c' do | t |
+  sys "gcc -I#{ trema_include } -I#{ openflow_include } #{ var :CFLAGS } -c -o #{ t.name } #{ t.source }"
+end
+desc "Build redirector"
+task :redirector => [ "redirectable_routing_switch/redirector.so" ]
+file "redirectable_routing_switch/redirector.so" => redirector_obj do | t |
+  sys "gcc -shared -o #{ t.name } #{ redirector_obj } #{ var :LDFLAGS }"
+end
+
+
+### Local variables:
+### mode: Ruby
+### coding: utf-8-unix
+### indent-tabs-mode: nil
+### End:
