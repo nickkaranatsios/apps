@@ -78,25 +78,28 @@ pathresolver_hop_out_port_no( VALUE self ) {
 
 
 /*
- * Resolves/Finds a path to route a packet given a source origin(in_dpid/in_port). 
+ * Resolves a path to route a packet given an origin(in_dpid/in_port)
  * and a destination(out_dpid, out_port).
  *
- * @param [Number] :in_dpid
- *   the originator identifier.
+ * @example
+ *   path_resolve in_dpid, in_port, out_dpid, out_port
  *
- * @param [Number] :in_port
- *   the port which the packet_in is received.
+ * @param [Number] in_dpid
+ *   the origin identifier.
  *
- * @param [Number] :out_dpid
+ * @param [Number] in_port
+ *   the input port which the packet_in is received.
+ *
+ * @param [Number] out_dpid
  *   the destination identifier.
  *
- * @param [Number] :out_port
- *   the port to output the packet_in.
+ * @param [Number] out_port
+ *   the destination output port.
  *
- * @return [Array] :PathResolverHop
+ * @return [Array<PathResolverHop>]
  *   an array of PathResolverHop objects for each hop determined.
  *
- * @return [NilClass] :nil if path determination failed.
+ * @return [NilClass] nil if path determination failed.
  *
  */
 static VALUE
@@ -124,6 +127,13 @@ path_resolve( VALUE self, VALUE in_dpid, VALUE in_port, VALUE out_dpid, VALUE ou
 }
 
 
+/*
+ * Updates the status of a node based on the given topology link status message.
+ *
+ * @param [topology_link_status] message
+ *   the message that describes the topology link status.
+ * @return [void]
+ */
 static VALUE
 update_path( VALUE self, VALUE message ) {
   topology_link_status *_topology_link_status;

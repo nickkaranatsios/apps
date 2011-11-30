@@ -28,10 +28,10 @@ static VALUE singleton_instance = Qnil;
 
 
 /*
- * Searches the database for the given Ethernet address.
+ * Authenticates a given Ethernet address against a list of known addresses.
  *
- * @param [Mac] an Ethernet address represented as an instance of the class 
- *   Trema::Mac.
+ * @param [Mac] mac 
+ *   an Ethernet address represented as an instance of the class Trema::Mac.
  *
  * @return [Boolean] true if Ethernet address is found otherwise false.
  */
