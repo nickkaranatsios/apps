@@ -77,12 +77,34 @@ pathresolver_hop_out_port_no( VALUE self ) {
 }
 
 
+/*
+ * Resolves/Finds a path to route a packet given a source origin(in_dpid/in_port). 
+ * and a destination(out_dpid, out_port).
+ *
+ * @param [Number] :in_dpid
+ *   the originator identifier.
+ *
+ * @param [Number] :in_port
+ *   the port which the packet_in is received.
+ *
+ * @param [Number] :out_dpid
+ *   the destination identifier.
+ *
+ * @param [Number] :out_port
+ *   the port to output the packet_in.
+ *
+ * @return [Array] :PathResolverHop
+ *   an array of PathResolverHop objects for each hop determined.
+ *
+ * @return [NilClass] :nil if path determination failed.
+ *
+ */
 static VALUE
-path_resolve( VALUE self, VALUE in_dpid, VALUE in_port, VALUE out_dpid_id, VALUE out_port  ) {
+path_resolve( VALUE self, VALUE in_dpid, VALUE in_port, VALUE out_dpid, VALUE out_port  ) {
   UNUSED( self );
 
   if ( handle != NULL ) {
-    dlist_element *hops = resolve_path( handle, NUM2ULL( in_dpid ), ( uint16_t ) NUM2UINT( in_port ), NUM2ULL( out_dpid_id ), ( uint16_t ) NUM2UINT( out_port ) );
+    dlist_element *hops = resolve_path( handle, NUM2ULL( in_dpid ), ( uint16_t ) NUM2UINT( in_port ), NUM2ULL( out_dpid ), ( uint16_t ) NUM2UINT( out_port ) );
     if ( hops != NULL ) {
       VALUE pathresolver_hops_arr = rb_ary_new();
       for ( dlist_element *e = hops; e != NULL; e = e->next ) {

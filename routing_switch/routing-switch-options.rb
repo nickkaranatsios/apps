@@ -47,11 +47,18 @@ class RoutingSwitchOptions < Model::Options
   end
 
 
+  #
+  # The maximum time duration for an active flow.
+  #
   def idle_timeout
     @options[ :idle_timeout ]
   end
 
 
+  #
+  # How long to discard packets that couldn't be routed to destination.
+  # If not specified default value is set to 1 second.
+  #
   def discard_packet_in_duration
     @options[ :packet_in_discard_duration ]
   end

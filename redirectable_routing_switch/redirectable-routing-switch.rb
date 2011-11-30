@@ -12,9 +12,12 @@ class RedirectableRoutingSwitch < Trema::Controller
 
   def start
     opts = RedirectableRoutingSwitchOptions.parse( ARGV )
+    if opts.nil? 
+      shutdown!
+      exit
+    end
     if  @authenticator = Authenticator.new( opts.authorized_host_db )
       @redirector = Redirector.new
-      @redirector2 = Redirector.new
       start_router( opts )
     end
   end
@@ -30,7 +33,7 @@ puts message.macsa
       filtered = AuthenticationFilter.apply( message )
       if filtered.length == 0
 puts "redirect"
-        @redirector2.redirect( datapath_id, message )
+        @redirector.redirect datapath_id, message
       end
     else
       if dest = @fdb.lookup( message.macda )
@@ -62,7 +65,7 @@ puts "flood_packet"
       end.parse!
       unless @options[ :authorized_host_db ]
         $stderr.puts "Mandatory option required: -a --authorized-host-db DB_FILE"
-        exit
+        return nil
       end
       self
     end

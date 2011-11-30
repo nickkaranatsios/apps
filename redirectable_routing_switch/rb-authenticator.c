@@ -18,16 +18,23 @@
  */
 
 
-#include "trema.h"
 #include "ruby.h"
 #include "authenticator.h"
+#include "trema.h"
 
 
 VALUE cAuthenticator;
-static uint8_t initialized = 0;
+static VALUE singleton_instance = Qnil;
 
 
-
+/*
+ * Searches the database for the given Ethernet address.
+ *
+ * @param [Mac] an Ethernet address represented as an instance of the class 
+ *   Trema::Mac.
+ *
+ * @return [Boolean] true if Ethernet address is found otherwise false.
+ */
 static VALUE
 rb_authenticate_mac( VALUE self, VALUE mac ) {
   UNUSED( self );
@@ -46,12 +53,19 @@ rb_authenticate_mac( VALUE self, VALUE mac ) {
 
 
 static VALUE
-rb_init_authenticator( VALUE self, VALUE file ) {
-  if ( initialized ) {
-    return cAuthenticator;
+new_instance_authenticator( VALUE self, VALUE file ) {
+  UNUSED( self );
+  if ( singleton_instance != Qnil ) {
+    return singleton_instance;
   }
+  singleton_instance = rb_funcall( rb_eval_string( "Authenticator" ), rb_intern( "new" ), 1, file );
+  return singleton_instance;
+}
+
+
+static VALUE
+initialize_authenticator( VALUE self, VALUE file ) {
   ( void )init_authenticator( StringValuePtr( file ) );
-  initialized = 1;
   return self;
 }
 
@@ -59,7 +73,8 @@ rb_init_authenticator( VALUE self, VALUE file ) {
 void
 Init_authenticator() {
   cAuthenticator = rb_define_class( "Authenticator", rb_cObject );
-  rb_define_method( cAuthenticator, "initialize", rb_init_authenticator, 1 );
+  rb_define_singleton_method( cAuthenticator, "new_instance", new_instance_authenticator, 1 );
+  rb_define_private_method( cAuthenticator, "initialize", initialize_authenticator, 1 );
   rb_define_method( cAuthenticator, "authenticate_mac", rb_authenticate_mac, 1 );
 }
 

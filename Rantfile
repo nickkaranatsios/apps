@@ -34,16 +34,22 @@ task :default => [
 ]
 
 
+if ENV.has_key? 'TREMA_HOME'
+  trema_home = ENV[ 'TREMA_HOME' ]
+else
+  trema_home = sys.expand_path( "../trema" )
+end
 trema_apps = sys.expand_path( "." )
-trema_home = sys.expand_path( "../trema" )
-trema_include = "#{trema_home}/src/lib"
-openflow_include = "#{trema_home}/objects/openflow"
+trema_include = "#{ trema_home }/src/lib"
+openflow_include = "#{ trema_home }/objects/openflow"
+
 
 def dependency name
   file = ".#{ name }.dependency"
   var[ :clean ] << file
   ".#{ name }.dependency"
 end
+
 
 import "clean"
 
@@ -63,8 +69,9 @@ task :buildrb do
   sys "chmod +x build.rb"
 end
 
-var :CFLAGS => "-I/usr/lib/ruby/1.8/i686-linux -I/usr/lib/ruby/1.8/i686-linux -D_FILE_OFFSET_BITS=64  -fPIC -g -std=gnu99 -D_GNU_SOURCE -fno-strict-aliasing -Wall -Wextra -Wformat=2 -Wcast-qual -Wcast-align -Wwrite-strings -Wconversion -Wfloat-equal -Wpointer-arith" 
-var :LDFLAGS => "-L. -L/usr/lib -Wl,-Bsymbolic -lruby1.8 -lpthread -lrt -ldl -lcrypt -lm -lc"
+
+var :CFLAGS => "-I. -I/usr/lib/ruby/1.8/i686-linux -D_FILE_OFFSET_BITS=64  -fPIC -g -std=gnu99 -D_GNU_SOURCE -fno-strict-aliasing -Wall -Wextra -Wformat=2 -Wcast-qual -Wcast-align -Wwrite-strings -Wconversion -Wfloat-equal -Wpointer-arith" 
+var :LDFLAGS => "-L. -L/usr/lib -Wl,-Bsymbolic -lruby1.8 -lpthread -lrt -lm -lc"
 
 
 src = FileList[ "#{ trema_apps }/topology/libtopology*.c",
