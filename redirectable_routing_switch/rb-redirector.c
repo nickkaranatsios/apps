@@ -24,16 +24,8 @@
 
 
 VALUE cRedirector;
-static VALUE singleton_instance = Qnil;
+static uint8_t initialized = 0;
 
-
-static VALUE
-initialize_redirector( VALUE self ) {
-  if ( !init_redirector() ) {
-    rb_raise( rb_eRuntimeError, "Failed to initialize redirector" );
-  }
-  return self;
-}
 
 /*
  * Routes non-authorized packets via a tun device to a destination host.
@@ -50,13 +42,17 @@ initialize_redirector( VALUE self ) {
  *     an object that encapsulates this instance.
  */
 static VALUE
-new_instance_redirector( VALUE self ) {
-  UNUSED( self );
-  if ( singleton_instance != Qnil ) {
-    return singleton_instance;
+rb_init_redirector( VALUE self ) {
+  if ( !initialized ) {
+    if ( !init_redirector() ) {
+      rb_raise( rb_eRuntimeError, "Failed to initialize redirector." );
+    }
+    initialized = 1;
   }
-  singleton_instance = rb_funcall( rb_eval_string( "Redirector" ), rb_intern( "new" ), 0 );
-  return singleton_instance;
+  else {
+    info( "Redirector already initialized." );
+  }
+  return self;
 }
 
 
@@ -82,9 +78,11 @@ rb_redirect( VALUE self, VALUE datapath_id, VALUE message ) {
 
 void 
 Init_redirector() {
+  rb_require( "singleton" );
   cRedirector = rb_define_class( "Redirector", rb_cObject );
-  rb_define_singleton_method( cRedirector, "new_instance", new_instance_redirector, 0 );
-  rb_define_private_method( cRedirector, "initialize", initialize_redirector, 0 );
+  // singleton so only one redirector object can be created.
+  rb_funcall( rb_const_get( rb_cObject, rb_intern( "Singleton") ), rb_intern( "included" ), 1, cRedirector );
+  rb_define_method( cRedirector, "init", rb_init_redirector, 0 );
   rb_define_method( cRedirector, "redirect", rb_redirect, 2 );
 }
 

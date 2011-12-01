@@ -24,7 +24,7 @@
 
 
 VALUE cAuthenticator;
-static VALUE singleton_instance = Qnil;
+static uint8_t initialized = 0;
 
 
 /*
@@ -53,28 +53,25 @@ rb_authenticate_mac( VALUE self, VALUE mac ) {
 
 
 static VALUE
-new_instance_authenticator( VALUE self, VALUE file ) {
-  UNUSED( self );
-  if ( singleton_instance != Qnil ) {
-    return singleton_instance;
+rb_init_authenticator( VALUE self, VALUE file ) {
+  if ( !initialized ) {
+    ( void )init_authenticator( StringValuePtr( file ) );
+    initialized = 1;
   }
-  singleton_instance = rb_funcall( rb_eval_string( "Authenticator" ), rb_intern( "new" ), 1, file );
-  return singleton_instance;
-}
-
-
-static VALUE
-initialize_authenticator( VALUE self, VALUE file ) {
-  ( void )init_authenticator( StringValuePtr( file ) );
+  else {
+    info( "Authenticator already initialized" );
+  }
   return self;
 }
 
 
 void
 Init_authenticator() {
+  rb_require( "singleton" );
   cAuthenticator = rb_define_class( "Authenticator", rb_cObject );
-  rb_define_singleton_method( cAuthenticator, "new_instance", new_instance_authenticator, 1 );
-  rb_define_private_method( cAuthenticator, "initialize", initialize_authenticator, 1 );
+  // singleton so only one authenticator object can be created.
+  rb_funcall( rb_const_get( rb_cObject, rb_intern( "Singleton") ), rb_intern( "included" ), 1, cAuthenticator );
+  rb_define_method( cAuthenticator, "init", rb_init_authenticator, 1 );
   rb_define_method( cAuthenticator, "authenticate_mac", rb_authenticate_mac, 1 );
 }
 

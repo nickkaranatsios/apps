@@ -16,10 +16,9 @@ class RedirectableRoutingSwitch < Trema::Controller
       shutdown!
       exit
     end
-    if  @authenticator = Authenticator.new( opts.authorized_host_db )
-      @redirector = Redirector.new
-      start_router( opts )
-    end
+    @authenticator = Authenticator.instance.init( opts.authorized_host_db )
+    @redirector = Redirector.instance.init
+    start_router( opts )
   end
 
 
