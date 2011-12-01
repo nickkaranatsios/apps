@@ -20,6 +20,7 @@
 
 require "observer"
 
+
 module TopologyClient
   include Observable
 
