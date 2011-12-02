@@ -46,16 +46,24 @@ topology_link_status_init( VALUE kclass ) {
 #endif
 
 
+/*
+ * Creates an instance of the class TopologyPortStatus.
+ */
 static VALUE
 topology_port_status_alloc( VALUE kclass ) {
   topology_port_status *_topology_port_status = xmalloc( sizeof( topology_port_status ) );
+  memset( _topology_port_status, 0, sizeof( topology_port_status ) );
   return Data_Wrap_Struct( kclass, 0, xfree, _topology_port_status );
 }
 
 
+/*
+ * Creates an instance of the class TopologyLinkStatus.
+ */
 static VALUE
 topology_link_status_alloc( VALUE kclass ) {
   topology_link_status *_topology_link_status = xmalloc( sizeof( topology_link_status ) );
+  memset( _topology_link_status, 0, sizeof( topology_link_status ) );
   return Data_Wrap_Struct( kclass, 0, xfree, _topology_link_status );
 }
 
@@ -124,7 +132,7 @@ static VALUE
 init_topology_client( VALUE self, VALUE service_name ) {
   int argc = 1;
   char **argv = xmalloc( sizeof ( char * ) * ( uint32_t ) ( argc + 1 ) );
-  argv[ 0 ] = RSTRING_PTR( service_name );
+  argv[ 0 ] = StringValuePtr( service_name );
   argv[ 1 ] = NULL; 
   
   init_topology_service_interface_options( &argc, &argv );
