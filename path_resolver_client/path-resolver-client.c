@@ -47,6 +47,7 @@ pathresolver_hop_init( VALUE kclass ) {
 static VALUE
 pathresolver_hop_alloc( VALUE kclass ) {
   pathresolver_hop *_pathresolver_hop = xmalloc( sizeof( pathresolver_hop ) );
+  memset( _pathresolver_hop, 0, sizeof( pathresolver_hop ) );
   return Data_Wrap_Struct( kclass, 0, xfree, _pathresolver_hop );
 }
 
