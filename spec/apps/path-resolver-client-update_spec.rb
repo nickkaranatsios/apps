@@ -58,7 +58,7 @@ module PathResolverClient
     end
 
 
-    context "with a network of nodes" do
+    context "When a network is configured" do
       it "should receive topology updates" do
         network {
           vswitch { datapath_id "0xe0" }
@@ -143,7 +143,7 @@ module PathResolverClient
         }.run( Resolver ) {
            controller( "Resolver" ).should_receive( :update ).at_least( :twice )
            switch( "0xe0" ).shutdown!
-           sleep 3 # FIXME: wait to send_packets
+           sleep 3 # FIXME: wait to for the switch to shutdown
         }
       end
     end
