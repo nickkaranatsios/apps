@@ -17,6 +17,7 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
+
 require "trema/model"
 
 
@@ -30,7 +31,7 @@ class RoutingSwitchOptions < Model::Options
         @options[ :idle_timeout ] = t.to_i
       end
       opts.on( "-d",
-        "-packet-in-discard-duration DURATION",
+        "--packet-in-discard-duration DURATION",
         "hard timeout value for packet_in discard duration" ) do | t |
         @options[ :packet_in_discard_duration ] = t.to_i
       end
