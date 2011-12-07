@@ -25,12 +25,19 @@
 
 VALUE mPathResolverClient;
 VALUE cPathResolverHop;
-pathresolver *handle;
+static pathresolver *handle;
 
 
 static VALUE
 init_path_resolver_client( VALUE self ) {
   handle = create_pathresolver();
+  return self;
+}
+
+
+static VALUE
+finalize_path_resolver_client( VALUE self ) {
+  delete_pathresolver( handle );
   return self;
 }
 
@@ -128,6 +135,13 @@ path_resolve( VALUE self, VALUE in_dpid, VALUE in_port, VALUE out_dpid, VALUE ou
 }
 
 
+static VALUE
+is_handle( VALUE self ) {
+  UNUSED( self );
+  return handle != NULL ? Qtrue : Qfalse;
+}
+
+
 /*
  * Updates the status of a node based on the given topology link status message.
  *
@@ -157,7 +171,9 @@ Init_path_resolver_client() {
   rb_define_method( cPathResolverHop, "out_port_no", pathresolver_hop_out_port_no, 0 );
 
   rb_define_method( mPathResolverClient, "init_path_resolver_client", init_path_resolver_client, 0 );
+  rb_define_method( mPathResolverClient, "finalize_path_resolver_client", finalize_path_resolver_client, 0 );
   rb_define_method( mPathResolverClient, "path_resolve", path_resolve, 4 );
+  rb_define_method( mPathResolverClient, "handle?", is_handle, 0 );
   rb_define_method( mPathResolverClient, "update_path", update_path, 1 );
 }
 
