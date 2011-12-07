@@ -1,7 +1,8 @@
-$:.unshift( File.dirname( __FILE__ ) + '/../../trema/ruby')
-$:.unshift( File.dirname( __FILE__ ) + '/../../trema/spec')
+$:.unshift( File.dirname( __FILE__ ) + '/../../trema_backup/ruby')
+$:.unshift( File.dirname( __FILE__ ) + '/../../trema_backup/spec')
 $:.unshift( File.dirname( __FILE__ ) + '/../topology')
 $:.unshift( File.dirname( __FILE__ ) + '/../path_resolver_client')
+$:.unshift( File.dirname( __FILE__ ) + '/../redirectable_routing_switch')
 
 
 #require "spec_helper"
@@ -12,6 +13,7 @@ require "rubygems"
 require "rspec"
 require "trema"
 require "trema/dsl/context"
+require "trema/dsl/runner"
 require "trema/ofctl"
 require "trema/shell-commands"
 require "trema/util"
@@ -19,7 +21,25 @@ Dir.glob( File.join( File.dirname( __FILE__ ), '*_supportspec.rb' ) ).each do | 
   require File.basename( file, File.extname( file ) )
 end
 
+
 ENV[ 'TREMA_TMP' ] = File.expand_path( 'tmp' )
+ENV[ 'TREMA_APPS'] = File.expand_path( '.' )
+
+
+def controller name
+  Trema::App[ name ]
+end
+
+
+def switch name
+  Trema::Switch[ name ]
+end
+
+
+def host name
+  Trema::Host[ name ]
+end
+
 
 include Trema::Util
 
@@ -57,27 +77,7 @@ class Network
     maybe_create_links
     maybe_run_hosts
     maybe_run_switches
-    
-=begin
-    @context.links.each do | name, each |
-      each.add!
-    end
-    @context.hosts.each do | name, each |
-      each.run!
-    end
-    @context.links.each do | name, each |
-      each.up!
-    end
-    @context.hosts.each do | name, each |
-      each.add_arp_entry @context.hosts.values - [ each ]
-    end
-    @context.switches.each do | name, each |
-      each.run!
-      drop_packets_from_unknown_hosts each
-    end
-=end
     maybe_run_apps
-
     @th_controller = Thread.start do
       controller.run!
     end
@@ -114,7 +114,21 @@ class Network
       end
       SwitchManager.new( rule, @context.port )
     end
-    switch_manager.run!
+    switch_manager.run! [ "--no-flow-cleanup" ]
+  end
+
+
+  def maybe_run_apps
+    return if @context.apps.values.empty?
+
+    @context.apps.values[ 0..-2 ].each do | each |
+      each.daemonize!
+    end
+  end
+
+
+  def maybe_run_packetin_filter
+    @context.packetin_filter.run! if @context.packetin_filter
   end
 
 
@@ -140,11 +154,6 @@ class Network
   end
 
 
-  def maybe_run_packetin_filter
-    @context.packetin_filter.run! if @context.packetin_filter
-  end
-
-
   def maybe_run_switches
     @context.switches.each do | name, switch |
       switch.run!
@@ -153,23 +162,6 @@ class Network
     @context.hosts.each do | name, host |
       host.add_arp_entry @context.hosts.values - [ host ]
     end
-  end
-
-
-  def maybe_run_apps
-    return if @context.apps.values.empty?
-
-    @context.apps.values[ 0..-2 ].each do | each |
-      each.daemonize!
-    end
-    trap( "SIGINT" ) do
-      print( "\nterminated\n" )
-      exit(0)
-    end
-    pid = ::Process.fork do
-      @context.apps.values.last.run!
-    end
-    ::Process.waitpid pid
   end
 
 
