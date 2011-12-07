@@ -142,6 +142,13 @@ init_topology_client( VALUE self, VALUE service_name ) {
 }
 
 
+static VALUE
+finalize_topology_client( VALUE self ) {
+  finalize_libtopology();
+  return self;
+}
+
+
 static topology_port_status *
 get_topology_port_status( VALUE self ) {
   topology_port_status *_topology_port_status;
@@ -224,6 +231,7 @@ Init_topology_client() {
   rb_define_method( cTopologyLinkStatus, "initialize", topology_link_status_init, 0 );
 #endif
   rb_define_method( mTopologyClient, "init_topology_client", init_topology_client, 1 );
+  rb_define_method( mTopologyClient, "finalize_topology_client", finalize_topology_client, 0 );
   rb_define_method( cTopologyPortStatus, "dpid", topology_port_status_dpid, 0 );
   rb_define_method( cTopologyPortStatus, "port_no", topology_port_status_port_no, 0 );
   rb_define_method( cTopologyPortStatus, "status", topology_port_status_status, 0 );
