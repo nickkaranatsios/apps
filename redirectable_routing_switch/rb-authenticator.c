@@ -65,6 +65,15 @@ rb_init_authenticator( VALUE self, VALUE file ) {
 }
 
 
+static VALUE
+rb_finalize_authenticator( VALUE self ) {
+  if ( finalize_authenticator() ) {
+    initialized = 0;
+  }
+  return self;
+}
+
+
 void
 Init_authenticator() {
   rb_require( "singleton" );
@@ -72,6 +81,7 @@ Init_authenticator() {
   // singleton so only one authenticator object can be created.
   rb_funcall( rb_const_get( rb_cObject, rb_intern( "Singleton") ), rb_intern( "included" ), 1, cAuthenticator );
   rb_define_method( cAuthenticator, "init", rb_init_authenticator, 1 );
+  rb_define_method( cAuthenticator, "finalize", rb_finalize_authenticator, 0 );
   rb_define_method( cAuthenticator, "authenticate_mac", rb_authenticate_mac, 1 );
 }
 
