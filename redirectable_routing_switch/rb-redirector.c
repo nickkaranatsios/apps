@@ -76,6 +76,15 @@ rb_redirect( VALUE self, VALUE datapath_id, VALUE message ) {
 }
 
 
+static VALUE
+rb_finalize_redirector( VALUE self ) {
+  if ( finalize_redirector() ) {
+    initialized = 0;
+  }
+  return self;
+}
+
+
 void 
 Init_redirector() {
   rb_require( "singleton" );
@@ -83,6 +92,7 @@ Init_redirector() {
   // singleton so only one redirector object can be created.
   rb_funcall( rb_const_get( rb_cObject, rb_intern( "Singleton") ), rb_intern( "included" ), 1, cRedirector );
   rb_define_method( cRedirector, "init", rb_init_redirector, 0 );
+  rb_define_method( cRedirector, "finalize", rb_finalize_redirector, 0 );
   rb_define_method( cRedirector, "redirect", rb_redirect, 2 );
 }
 
