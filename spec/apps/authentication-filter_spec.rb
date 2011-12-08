@@ -26,8 +26,12 @@ require "redirectable_routing_switch/authentication-filter"
 
 
 describe AuthenticationFilter do 
+  def packet_in
+    @packet_in ||= PacketIn.new
+  end
+
+
   def set_disallow
-    packet_in = PacketIn.new
     packet_in.stub!( :udp_src_port ).and_return( 1 )
     packet_in.stub!( :udp_dst_port ).and_return( 1 )
     packet_in.stub!( :tcp_src_port).and_return( 5555 )
@@ -38,7 +42,6 @@ describe AuthenticationFilter do
 
 
   def set_allow
-    packet_in = PacketIn.new
     packet_in.stub!( :udp_src_port ).and_return( 67 )
     packet_in.stub!( :udp_dst_port ).and_return( 68 )
     packet_in.stub!( :tcp_src_port).and_return( 53 )
@@ -49,27 +52,25 @@ describe AuthenticationFilter do
   
 
   def when_allowed
-    packet_in = set_allow
-    yield packet_in
+    yield set_allow
   end
 
 
   def when_not_allowed
-    packet_in = set_disallow
     yield set_disallow
   end
 
 
   it "should pass authentication if allowed" do
-    when_allowed do | packet_in |
-      AuthenticationFilter.apply( packet_in ).should_not be_empty
+    when_allowed do | message |
+      AuthenticationFilter.apply( message ).should_not be_empty
     end
   end
 
 
   it "should failed authentication if not allowed" do
-    when_not_allowed do | packet_in |
-      AuthenticationFilter.apply( packet_in ).should be_empty
+    when_not_allowed do | message |
+      AuthenticationFilter.apply( message ).should be_empty
     end
   end
 end
