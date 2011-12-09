@@ -51,6 +51,7 @@ describe Authenticator do
         }.run( Client ) {
           controller( "Client" ).authenticator.init( self.class.db_file )
           controller( "Client" ).authenticator.authenticate_mac( Trema::Mac.new( "00:00:00:00:10:01" ) ).should be_true
+          controller( "Client" ).authenticator.finalize
         }
       end
 
@@ -59,9 +60,9 @@ describe Authenticator do
         network {
           vswitch { datapath_id "0xe0" }
         }.run( Client ) {
-          controller( "Client" ).authenticator.finalize
           controller( "Client" ).authenticator.init( self.class.db_file )
           controller( "Client" ).authenticator.authenticate_mac( Trema::Mac.new( "ff:ff:ff:ff:ff:ff" ) ).should be_false
+          controller( "Client" ).authenticator.finalize
         }
       end
 
@@ -70,9 +71,11 @@ describe Authenticator do
         network {
           vswitch { datapath_id "0xe0" }
         }.run( Client ) {
+          controller( "Client" ).authenticator.init( self.class.db_file )
           controller( "Client" ).authenticator.finalize
           controller( "Client" ).authenticator.init( self.class.db_file )
           controller( "Client" ).authenticator.authenticate_mac( Trema::Mac.new( "00:00:00:00:10:01" ) ).should be_true
+          controller( "Client" ).authenticator.finalize
         }
       end
     end
@@ -86,9 +89,9 @@ describe Authenticator do
       network {
         vswitch { datapath_id "0xe0" }
       }.run( Client ) {
-        controller( "Client" ).authenticator.finalize
         controller( "Client" ).authenticator.init( "foo" )
         controller( "Client" ).authenticator.authenticate_mac( Trema::Mac.new( "00:00:00:00:10:01" ) ).should be_false
+        controller( "Client" ).authenticator.finalize
       }
     end
   end
