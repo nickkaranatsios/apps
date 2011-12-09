@@ -44,7 +44,7 @@ module PathResolverClient
 
 
   describe PathResolverClient do
-    before :each do
+    around do | example |
       class Resolver < Controller
         include Router
 
@@ -73,141 +73,81 @@ module PathResolverClient
           end
         end
       end
-    end
-
-=begin
-    it "should respond to #init_path_resolver_client" do
-      client.stub!( :name ).and_return( 'Resolver' )
-      client.stub!( :init_topology_client ).and_return( true )
-      client.should_receive( :init_path_resolver_client )
-      client.start_topology
-    end
-=end
-
-
-    context "when a second packet_in is received" do
-      it "should respond to #path_resolve" do
-        network {
-          vswitch { datapath_id "0xe0" }
-          vswitch { datapath_id "0xe1" } 
-          vhost ("host1") {
-            ip "192.168.0.1"
-            netmask "255.255.0.0"
-            mac "00:00:00:00:10:01"
-          }
-          vhost ("host2") {
-            ip "192.168.0.2"
-            netmask "255.255.0.0"
-            mac "00:00:00:00:10:02"
-          }
-
-
-          link "0xe0", "host1"
-          link "0xe1", "host2"
-
-
-          link "0xe0", "0xe1"
-          link "0xe1", "0xe0"
-
-
-          app {
-            path "#{ ENV[ 'TREMA_APPS' ] }/topology/topology"
-          }
-
-
-          app {
-            path "#{ ENV[ 'TREMA_APPS' ] }/topology/topology_discovery"
-          }
-
-
-          event :port_status => "topology", :packet_in => "filter", :state_notify => "topology"
-          filter :lldp => "topology_discovery", :packet_in => "Resolver"
-        }.run( Resolver ) {
-          sleep 10
-          controller( "Resolver" ).should_receive( :flood_packet ).at_least( :once )
-          send_packets "host1", "host2"
-          sleep 2
-          controller( "Resolver" ).should_receive( :path_resolve ).at_least( :once ).and_return( [ HopInfo.new ] )
-          send_packets "host2", "host1"
-          sleep 2
-       }
-      end
-    end
-
-
-    context "when a switch goes down" do
-      it "should respond to #update_path" do
-        network {
-          vswitch { datapath_id "0xe0" }
-          vswitch { datapath_id "0xe1" } 
-          vhost ("host1") {
-            ip "192.168.0.1"
-            netmask "255.255.0.0"
-            mac "00:00:00:00:10:01"
-          }
-          vhost ("host2") {
-            ip "192.168.0.2"
-            netmask "255.255.0.0"
-            mac "00:00:00:00:10:02"
-          }
-
-
-          link "0xe0", "host1"
-          link "0xe1", "host2"
-
-
-          link "0xe0", "0xe1"
-          link "0xe1", "0xe0"
-
-
-          app {
-            path "#{ ENV[ 'TREMA_APPS' ] }/topology/topology"
-          }
-
-
-          app {
-            path "#{ ENV[ 'TREMA_APPS' ] }/topology/topology_discovery"
-          }
-
-
-          event :port_status => "topology", :packet_in => "filter", :state_notify => "topology"
-          filter :lldp => "topology_discovery", :packet_in => "Resolver"
-        }.run( Resolver ) {
-          controller( "Resolver" ).stop_topology
-          controller( "Resolver" ).start_topology
-          controller( "Resolver" ).should_receive( :update_path ).at_least( :once )
-          switch( "0xe0" ).shutdown!
-          sleep 3
+      network {
+	vswitch { datapath_id "0xe0" }
+	vswitch { datapath_id "0xe1" } 
+	vhost ("host1") {
+          ip "192.168.0.1"
+	  netmask "255.255.0.0"
+	  mac "00:00:00:00:10:01"
+	}
+	vhost ("host2") {
+	  ip "192.168.0.2"
+	  netmask "255.255.0.0"
+          mac "00:00:00:00:10:02"
         }
-      end
+
+
+        link "0xe0", "host1"
+        link "0xe1", "host2"
+
+
+        link "0xe0", "0xe1"
+        link "0xe1", "0xe0"
+
+
+        app {
+          path "#{ ENV[ 'TREMA_APPS' ] }/topology/topology"
+        }
+
+
+        app {
+          path "#{ ENV[ 'TREMA_APPS' ] }/topology/topology_discovery"
+        }
+
+
+        event :port_status => "topology", :packet_in => "filter", :state_notify => "topology"
+        filter :lldp => "topology_discovery", :packet_in => "Resolver"
+      }.run( Resolver ) {
+        example.run
+      }
     end
 
 
-=begin
+    it "should receive topology updates" do
       controller( "Resolver" ).should_receive( :update ).at_least( :twice )
-      switch( "0xe0" ).shutdown!
-      sleep 3 # FIXME: wait to send_packets
-=end
-=begin
-      # this works with flood packet
       sleep 10
-      controller( 'Resolver' ).should_receive( :flood_packet ).at_least( :once )
+      controller( "Resolver" ).stop_topology
+    end
+
+
+    it "should #path_resolve" do
+      sleep 10
+      controller( "Resolver" ).should_receive( :flood_packet ).at_least( :once )
       send_packets "host1", "host2"
       sleep 2
-=end
-=begin
-      # this works with make_path
-      sleep 10
-      controller( 'Resolver' ).should_receive( :flood_packet ).at_least( :once )
-      send_packets "host1", "host2"
-      sleep 2
-      controller( 'Resolver' ).should_receive( :make_path ).at_least( :once ) 
+      controller( "Resolver" ).should_receive( :path_resolve ).at_least( :once ).and_return( [ HopInfo.new ] )
       send_packets "host2", "host1"
       sleep 2
-=end
-=begin
-=end
-end
+      controller( "Resolver" ).stop_topology
+    end
+
+
+    it "should failed to resolve an unconfigured path" do
+      controller( "Resolver" ).should_receive( :path_resolve ).and_return( nil )
+      controller( "Resolver" ).path_resolve( 0xe0, 5, 0xe1, 5 )
+      controller( "Resolver" ).stop_topology
+    end
+
+   
+    context "when a node goes down" do
+      it "should respond to #update_path" do
+        controller( "Resolver" ).should_receive( :update_path ).at_least( :once )
+        switch( "0xe0" ).shutdown!
+        sleep 3
+      end
+    end
+  end
 end
 
 
