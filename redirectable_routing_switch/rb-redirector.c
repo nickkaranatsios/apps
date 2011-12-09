@@ -69,6 +69,9 @@ rb_init_redirector( VALUE self ) {
  */
 static VALUE
 rb_redirect( VALUE self, VALUE datapath_id, VALUE message ) {
+  if ( !initialized ) {
+    return self;
+  }
   packet_in *_packet_in;
   Data_Get_Struct( message, packet_in, _packet_in );
   redirect( NUM2ULL( datapath_id ), _packet_in->in_port, _packet_in->data );
