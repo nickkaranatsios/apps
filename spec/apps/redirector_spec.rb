@@ -50,27 +50,8 @@ describe Redirector do
     end
 
 
-
-
-    it "should re-initialize successfully" do
-      network {
-        vswitch( "client" ) { datapath_id "0xe0" }
-        vhost "host1"
-        vhost "host2"
-        link "host1", "client"
-        link "host2", "client"
-      }.run( Client ) {
-        controller( "Client" ).redirector.init
-        controller( "Client" ).redirector.finalize
-puts `netstat -i | grep of0`
-puts `netstat -r`
-        controller( "Client" ).redirector.init
-        send_packets "host1", "host2"
-        sleep 2 #FIXME wait for packets to be sent
-        netstat_str =  `netstat -i | grep of0`
-        rx_count = netstat_str.split( /\s+/ )[3].to_i
-        rx_count.should >= 1
-      }
+    def rx_count
+      `netstat -i | grep of0`.split( /\s+/ )[3].to_i
     end
 
 
@@ -82,11 +63,31 @@ puts `netstat -r`
         link "host1", "client"
         link "host2", "client"
       }.run( Client ) {
+        controller( "Client" ).redirector.init
         send_packets "host1", "host2"
         sleep 2 #FIXME wait for packets to be sent
-        netstat_str =  `netstat -i | grep of0`
-        rx_count = netstat_str.split( /\s+/ )[3].to_i
         rx_count.should >= 1
+        controller( "Client" ).redirector.finalize
+      }
+    end
+  
+
+    it "should re-initialize successfully" do
+      network {
+        vswitch( "client" ) { datapath_id "0xe0" }
+        vhost "host1"
+        vhost "host2"
+        link "host1", "client"
+        link "host2", "client"
+      }.run( Client ) {
+        controller( "Client" ).redirector.init
+        controller( "Client" ).redirector.finalize
+        controller( "Client" ).redirector.init
+        prior_rx_count = rx_count
+        send_packets "host1", "host2"
+        sleep 2 #FIXME wait for packets to be sent
+        (rx_count - prior_rx_count).should >= 1
+        controller( "Client" ).redirector.finalize
       }
     end
   end
