@@ -71,14 +71,14 @@ module Model
     end
 
 
-    it "deletes a port when status down" do
+    it "deletes a port when its status is down" do
       subject.process_port_status PortStatusMessage.new 0xe0, 1, 1, 0
       subject.process_port_status PortStatusMessage.new 0xe0, 1, 0, 0
       subject.lookup_port( 0xe0, 1 ).should be_nil
     end
 
 
-    it "sets the switch's link to specified status" do
+    it "sets the switch's link to a specified status" do
       subject.process_port_status PortStatusMessage.new 0xe0, 1, 1, 0
       subject.process_link_status LinkStatusMessage.new 0xe0, 1, 0, 0, 0
       port_ds = subject.lookup_port( 0xe0, 1 )

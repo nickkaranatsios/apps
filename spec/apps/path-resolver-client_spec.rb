@@ -74,23 +74,20 @@ module PathResolverClient
         end
       end
       network {
-	vswitch { datapath_id "0xe0" }
-	vswitch { datapath_id "0xe1" } 
-	vhost ("host1") {
+        vswitch { datapath_id "0xe0" }
+	      vswitch { datapath_id "0xe1" } 
+	      vhost ("host1") {
           ip "192.168.0.1"
-	  netmask "255.255.0.0"
-	  mac "00:00:00:00:10:01"
-	}
-	vhost ("host2") {
-	  ip "192.168.0.2"
-	  netmask "255.255.0.0"
+	        netmask "255.255.0.0"
+	        mac "00:00:00:00:10:01"
+	      }
+        vhost ("host2") {
+          ip "192.168.0.2"
+          netmask "255.255.0.0"
           mac "00:00:00:00:10:02"
         }
-
-
         link "0xe0", "host1"
         link "0xe1", "host2"
-
 
         link "0xe0", "0xe1"
         link "0xe1", "0xe0"
@@ -104,7 +101,6 @@ module PathResolverClient
         app {
           path "#{ ENV[ 'TREMA_APPS' ] }/topology/topology_discovery"
         }
-
 
         event :port_status => "topology", :packet_in => "filter", :state_notify => "topology"
         filter :lldp => "topology_discovery", :packet_in => "Resolver"
