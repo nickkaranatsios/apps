@@ -24,10 +24,23 @@
 
 
 VALUE mPathResolverClient;
+/*
+ * A class that describes a hop a path segment resolved by the path resolver 
+ * library.
+ */
 VALUE cPathResolverHop;
+/*
+ * A client handle to the path resolver library.
+ */
 static pathresolver *handle;
 
 
+/*
+ * Creates and initializes the path resolver library.
+ *
+ * @return [pathresolver] handle
+ *   a handler that user can use to interact with the path resolver library.
+ */
 static VALUE
 init_path_resolver_client( VALUE self ) {
   handle = create_pathresolver();
@@ -35,6 +48,11 @@ init_path_resolver_client( VALUE self ) {
 }
 
 
+/*
+ * Releases the handle acquired previous by the initialization call.
+ *
+ * @return [void]
+ */
 static VALUE
 finalize_path_resolver_client( VALUE self ) {
   delete_pathresolver( handle );
@@ -67,18 +85,27 @@ get_pathresolver_hop( VALUE self ) {
 }
 
 
+/*
+ * The datapath identifier of this hop.
+ */
 static VALUE
 pathresolver_hop_dpid( VALUE self ) {
   return ULL2NUM( get_pathresolver_hop( self )->dpid );
 }
 
 
+/*
+ * The input port number of this hop.
+ */
 static VALUE
 pathresolver_hop_in_port_no( VALUE self ) {
   return UINT2NUM( get_pathresolver_hop( self )->in_port_no );
 }
 
 
+/*
+ * The output port number of this hop.
+ */
 static VALUE
 pathresolver_hop_out_port_no( VALUE self ) {
   return UINT2NUM( get_pathresolver_hop( self )->out_port_no );
@@ -108,7 +135,6 @@ pathresolver_hop_out_port_no( VALUE self ) {
  *   an array of PathResolverHop objects for each hop determined.
  *
  * @return [NilClass] nil if path determination failed.
- *
  */
 static VALUE
 path_resolve( VALUE self, VALUE in_dpid, VALUE in_port, VALUE out_dpid, VALUE out_port  ) {
@@ -135,6 +161,11 @@ path_resolve( VALUE self, VALUE in_dpid, VALUE in_port, VALUE out_dpid, VALUE ou
 }
 
 
+/*
+ * Is path resolver library initialialized?
+ *
+ * @return[Boolean] true if have a valid handle otherwise false.
+ */
 static VALUE
 is_handle( VALUE self ) {
   UNUSED( self );
@@ -147,6 +178,7 @@ is_handle( VALUE self ) {
  *
  * @param [topology_link_status] message
  *   the message that describes the topology link status.
+ *
  * @return [void]
  */
 static VALUE
