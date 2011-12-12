@@ -79,6 +79,12 @@ rb_redirect( VALUE self, VALUE datapath_id, VALUE message ) {
 }
 
 
+/*
+ * Finalizes releases previously acquired resources and resets state 
+ * variables to be initialized again if required.
+ * 
+ * @return [void]
+ */
 static VALUE
 rb_finalize_redirector( VALUE self ) {
   if ( finalize_redirector() ) {

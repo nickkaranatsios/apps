@@ -32,18 +32,30 @@ class RedirectableRoutingSwitch < Trema::Controller
   include Router
 
 
+  #
+  # A redirectable routing switch it behaves like any other routing switch
+  # with an additional authentication and redirection function. Un-authorized
+  # host packets would be redirected to a pre-defined device. Learned
+  # authorized packets would be forward to destination as normal.
+  #
   def start
     opts = RedirectableRoutingSwitchOptions.parse( ARGV )
-    if opts.nil? 
+    if opts.nil?
       shutdown!
       exit
     end
     @authenticator = Authenticator.instance.init( opts.authorized_host_db )
     @redirector = Redirector.instance.init
-    start_router( opts )
+    start_router opts
   end
 
 
+  #
+  # Every packet in's mac source address is authenticated against a list of known
+  # mac addresses. Packets that pass the authentication are either transmitted to
+  # destination directly via a constructed flow path or flooded on the network.
+  # Unauthorized packets redirected to a pre-defined device.
+  #
   def packet_in datapath_id, message
     return unless validate_in_port datapath_id, message.in_port
     return if message.macda.is_multicast?

@@ -22,6 +22,14 @@ require "trema/model"
 
 
 class RedirectableRoutingSwitchOptions < Model::Options
+  #
+  # Parses redirectable routing switch's command line options.
+  #
+  # @param [Array] args the options to parse
+  #
+  # @return [self] if parsing the options successfully.
+  # @return [nil] if a mandatory option is not specified.
+  #
   def parse!( args ) 
     super
     args.options do | opts |
@@ -45,6 +53,9 @@ class RedirectableRoutingSwitchOptions < Model::Options
   end
 
 
+  #
+  # The default options that can be set for the redirectable routing switch.
+  #
   def default_options
     {
       :idle_timeout => 60
@@ -52,11 +63,22 @@ class RedirectableRoutingSwitchOptions < Model::Options
   end
 
 
+  #
+  # the parsed idle_timeout option.
+  #
+  # @return [Number] idle_timeout the numeric value of this option.
+  #
   def idle_timeout
     @options[ :idle_timeout ]
   end
 
 
+  #
+  # the parsed authorized_host_db option.
+  #
+  # @return [String] authorized_host_db 
+  #   a text representation value of this option.
+  #
   def authorized_host_db
     @options[ :authorized_host_db ]
   end
