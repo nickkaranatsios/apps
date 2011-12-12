@@ -68,6 +68,9 @@ topology_link_status_alloc( VALUE kclass ) {
 }
 
 
+/*
+ * Topoloy port status notifier.
+ */
 static void
 port_status_updated( void *user_data, const topology_port_status *status ) {
   VALUE topology = ( VALUE ) user_data;
@@ -93,6 +96,9 @@ port_status( void *user_data, size_t n_entries, const topology_port_status *s ) 
 }
 
 
+/*
+ * Topology link status notifier.
+ */
 static void 
 link_status_updated( void *user_data, const topology_link_status *status ) {
   VALUE topology = ( VALUE ) user_data;
@@ -157,24 +163,36 @@ get_topology_port_status( VALUE self ) {
 }
 
 
+/*
+ * Datapath_id, the message originator of this topology port status notifier.
+ */
 static VALUE
 topology_port_status_dpid( VALUE self ) {
   return ULL2NUM( get_topology_port_status( self )->dpid );
 }
 
 
+/*
+ * The port number that its status changed.
+ */
 static VALUE
 topology_port_status_port_no( VALUE self ) {
   return UINT2NUM( get_topology_port_status( self )->port_no );
 }
 
 
+/*
+ * An up and down status of a port.
+ */
 static VALUE
 topology_port_status_status( VALUE self ) {
   return UINT2NUM( get_topology_port_status( self )->status );
 }
 
 
+/*
+ * External status whether another switch is connected to this port or not.
+ */
 static VALUE
 topology_port_status_external( VALUE self ) {
   return UINT2NUM( get_topology_port_status( self )->external );
@@ -189,30 +207,45 @@ get_topology_link_status( VALUE self ) {
 }
 
 
+/*
+ * The origin path identifier for this topology link status notifier.
+ */
 static VALUE
 topology_link_status_from_dpid( VALUE self ) {
   return ULL2NUM( get_topology_link_status( self )->from_dpid );
 }
 
 
+/*
+ * The destination path identifier for this topology link status notifier.
+ */
 static VALUE
 topology_link_status_to_dpid( VALUE self ) {
   return ULL2NUM( get_topology_link_status( self )->to_dpid );
 }
 
 
+/*
+ * The origin port for this topology link status notifier.
+ */
 static VALUE
 topology_link_status_from_portno( VALUE self ) {
   return UINT2NUM( get_topology_link_status( self )->from_portno );
 }
 
 
+/*
+ * The destination port for this topology link status notifier.
+ */
 static VALUE
 topology_link_status_to_portno( VALUE self ) {
   return UINT2NUM( get_topology_link_status( self )->to_portno );
 }
 
 
+/*
+ * An up/down status of the identified path.
+ */
 static VALUE
 topology_link_status_status( VALUE self ) {
   return UINT2NUM( get_topology_link_status( self )->status );
