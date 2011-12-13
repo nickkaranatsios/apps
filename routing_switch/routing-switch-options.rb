@@ -22,6 +22,17 @@ require "trema/model"
 
 
 class RoutingSwitchOptions < Model::Options
+  #
+  # Parses routing switch's command line options. Since no mandatory options
+  # required call succeeds even if no options are provided.
+  # 
+  # @param [Array] args
+  #   an array of arguments to parse. Contains only the program name if no
+  #   arguments provided.
+  #
+  # @return [self]
+  #   the receiver object
+  #
   def parse!( args )
     super
     args.options do |opts|
@@ -40,6 +51,9 @@ class RoutingSwitchOptions < Model::Options
   end
 
 
+  #
+  # Routing switch's default options.
+  #
   def default_options
     {
       :idle_timeout => 60,
