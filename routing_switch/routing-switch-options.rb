@@ -54,6 +54,8 @@ class RoutingSwitchOptions < Model::Options
   #
   # Routing switch's default options.
   #
+  # @return [Hash] a hash of default options.
+  #
   def default_options
     {
       :idle_timeout => 60,
@@ -65,6 +67,8 @@ class RoutingSwitchOptions < Model::Options
   #
   # The maximum time duration for an active flow.
   #
+  # @return [Number]
+  #
   def idle_timeout
     @options[ :idle_timeout ]
   end
@@ -73,6 +77,8 @@ class RoutingSwitchOptions < Model::Options
   #
   # How long to discard packets that couldn't be routed to destination.
   # If not specified default value is set to 1 second.
+  #
+  # @return [Number]
   #
   def discard_packet_in_duration
     @options[ :packet_in_discard_duration ]
