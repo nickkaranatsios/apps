@@ -24,14 +24,13 @@ require "trema/model"
 class RoutingSwitchOptions < Model::Options
   #
   # Parses routing switch's command line options. Since no mandatory options
-  # required call succeeds even if no options are provided.
+  # required call succeeds even if no options are supplied.
   # 
   # @param [Array] args
-  #   an array of arguments to parse. Contains only the program name if no
-  #   arguments provided.
+  #   an array of arguments to parse. Includes only the program name if no
+  #   additional arguments supplied.
   #
-  # @return [self]
-  #   the receiver object
+  # @return [self] the receiver object.
   #
   def parse!( args )
     super
@@ -52,9 +51,9 @@ class RoutingSwitchOptions < Model::Options
 
 
   #
-  # Routing switch's default options.
+  # A hash of default options.
   #
-  # @return [Hash] a hash of default options.
+  # @return [Hash]
   #
   def default_options
     {
@@ -65,7 +64,7 @@ class RoutingSwitchOptions < Model::Options
 
 
   #
-  # The maximum time duration for an active flow.
+  # The maximum time duration of an active flow.
   #
   # @return [Number]
   #

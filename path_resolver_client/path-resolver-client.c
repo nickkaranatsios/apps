@@ -25,7 +25,7 @@
 
 VALUE mPathResolverClient;
 /*
- * A class that describes a hop a path segment resolved by the path resolver 
+ * A class that describes a hop a path segment resolved by the path resolver
  * library.
  */
 VALUE cPathResolverHop;
@@ -36,10 +36,10 @@ static pathresolver *handle;
 
 
 /*
- * Creates and initializes the path resolver library.
+ * Creates and initializes the path resolver library. Saves a handle a user
+ * can use to interact with the path resolver library.
  *
- * @return [pathresolver] handle
- *   a handler that user can use to interact with the path resolver library.
+ * @return [self] receiver
  */
 static VALUE
 init_path_resolver_client( VALUE self ) {
@@ -49,9 +49,8 @@ init_path_resolver_client( VALUE self ) {
 
 
 /*
- * Releases the handle acquired previous by the initialization call.
+ * Releases the handle acquired previously by the initialization call.
  *
- * @return [void]
  */
 static VALUE
 finalize_path_resolver_client( VALUE self ) {
@@ -86,7 +85,7 @@ get_pathresolver_hop( VALUE self ) {
 
 
 /*
- * The datapath identifier of this hop.
+ * @return [Number] dpid the datapath identifier of this hop.
  */
 static VALUE
 pathresolver_hop_dpid( VALUE self ) {
@@ -95,7 +94,7 @@ pathresolver_hop_dpid( VALUE self ) {
 
 
 /*
- * The input port number of this hop.
+ * @return [Number] in_port_no the input port number of this hop.
  */
 static VALUE
 pathresolver_hop_in_port_no( VALUE self ) {
@@ -104,7 +103,7 @@ pathresolver_hop_in_port_no( VALUE self ) {
 
 
 /*
- * The output port number of this hop.
+ * @return [Number] out_port_no the output port number of this hop.
  */
 static VALUE
 pathresolver_hop_out_port_no( VALUE self ) {
@@ -113,17 +112,17 @@ pathresolver_hop_out_port_no( VALUE self ) {
 
 
 /*
- * Resolves a path to route a packet given an origin(in_dpid/in_port)
+ * Resolves a path to route a packet given by an origin(in_dpid/in_port)
  * and a destination(out_dpid, out_port).
  *
  * @example
  *   path_resolve in_dpid, in_port, out_dpid, out_port
  *
  * @param [Number] in_dpid
- *   the origin identifier.
+ *   the datapath id of the originator.
  *
  * @param [Number] in_port
- *   the input port which the packet_in is received.
+ *   the input port from where the packet in is received.
  *
  * @param [Number] out_dpid
  *   the destination identifier.
@@ -164,7 +163,7 @@ path_resolve( VALUE self, VALUE in_dpid, VALUE in_port, VALUE out_dpid, VALUE ou
 /*
  * Is path resolver library initialialized?
  *
- * @return[Boolean] true if have a valid handle otherwise false.
+ * @return [Boolean] true if a valid handle otherwise false.
  */
 static VALUE
 is_handle( VALUE self ) {
@@ -179,7 +178,7 @@ is_handle( VALUE self ) {
  * @param [topology_link_status] message
  *   the message that describes the topology link status.
  *
- * @return [void]
+ * @return [self] receiver
  */
 static VALUE
 update_path( VALUE self, VALUE message ) {

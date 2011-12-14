@@ -33,8 +33,8 @@ static uint8_t initialized = 0;
 /*
  * Authenticates a given Ethernet address against a list of known addresses.
  *
- * @param [Mac] mac 
- *   an Ethernet address represented as an instance of the class Trema::Mac.
+ * @param [Mac] mac an Ethernet address represented as an instance of the 
+ *   class Trema::Mac.
  *
  * @return [Boolean] true if Ethernet address is found otherwise false.
  */
@@ -58,15 +58,12 @@ rb_authenticate_mac( VALUE self, VALUE mac ) {
 /*
  * Calls the authenticator initializer to load an authorized host SQLite 
  * database file into memory. The table name is authorized_host with
- * two fields mac,description. The mac is an unsigned bigint whilst
- * description is a text field. 
+ * two fields mac and description. The mac is an unsigned bigint whilst
+ * description is a text field. if the SQLite database file can not be 
+ * loaded it tries continously to do so but no error is returned.
  *
- * @param [String] file
+ * @param [String] file 
  *   the authorized host database file.
- *
- * @return [void]
- *   if the SQLite database file can not be loaded it tries continously to do so
- *   but no error is returned.
  */
 static VALUE
 rb_init_authenticator( VALUE self, VALUE file ) {
@@ -85,7 +82,6 @@ rb_init_authenticator( VALUE self, VALUE file ) {
  * Releases memory occuppied previously from the loading of the SQLite database
  * file. After this call initializer can be invoked again if desired.
  *
- * @return [void]
  */
 static VALUE
 rb_finalize_authenticator( VALUE self ) {

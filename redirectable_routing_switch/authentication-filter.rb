@@ -23,12 +23,23 @@ class AuthenticationFilter
 
 
   class << self
+    #
+    # @return [PacketIn] the packet in to authenticate.
+    #
     attr_reader :packet_in
+    #
+    # @return [Array] an array of PacketIn class methods.
+    #
     attr_reader :packet_in_methods
 
 
     #
-    # Saves inherited classes instances.
+    # Saves subclasses instances.
+    #
+    # @param [ArpFilter, DhcpBootpFilter, DnsTcpFilter, DnsUdpFilter] subclass
+    #   all known subclasses of AuthenticationFilter class.
+    #
+    # @return [Array] an array of subclasses class objects.
     #
     def inherited subclass
       @subclasses << subclass
@@ -36,12 +47,11 @@ class AuthenticationFilter
 
 
     #
-    # Authenticates a packet in message by delegating the process to
-    # to authentication filter subclass instances by invoking the allow
-    # method on each.
+    # Authenticates a packet in message by calling a common allow method
+    # on each subclass instance.
     #
     # @param [PacketIn] packet_in
-    #   the context of a packet in message.
+    #   the context of the packet in message.
     #
     # @return [Array]
     #   an empty array if authentication is passed otherwise an non
@@ -56,13 +66,11 @@ class AuthenticationFilter
 
 
   #
-  # For each authentication filter subclass creates instance variables to retrieve 
-  # the corresponding packet in instance variables.
+  # For each authentication filter subclass sets each instance variable to the
+  # value of the packet in instance variable.
   #
-  # @param [Array] attributes one or more attribute corresponding to mapped packet's in
+  # @param [Array] attributes one or more attributes corresponding to mapped packet's in
   #   instance variables.
-  #
-  # @return [void]
   #
   def filter_attributes *attributes
     attributes.each_index do | i |
@@ -79,11 +87,11 @@ end
 
 class DhcpBootpFilter < AuthenticationFilter
   #
-  # Checks the udp src/dst port value of a packet in to determine if it should
-  # pass the authentication or not. To pass either the udp src or dst port must 
-  # have the value of 67 or 68 (DHCP port number).
+  # Inspects the UDP source or destination port of a packet in. To pass 
+  # authentication the UDP source or destination must be either 67 or 68
+  # (DHCP port).
   #
-  # @return [Boolean] true if matched, otherwise false.
+  # @return [Boolean] true if passes authentication, otherwise false.
   #
   def allow?
     filter_attributes :udp_src_port, :udp_dst_port
@@ -94,11 +102,11 @@ end
 
 class DnsUdpFilter < AuthenticationFilter
   #
-  # Checks the udp src/dst port value of a packet in to determine if it should
-  # pass the authentication or not. To pass the udp src or dst port port must
-  # have the value of 53 (DNS UDP port number).
+  # Inspects the UDP source or destination port of a packet in. To pass
+  # authentication the UDP source or destination port must be 
+  # 53 (DNS UDP port).
   #
-  # @return [Boolean] true if matched otherwise false.
+  # @return [Boolean] true if passes authentication otherwise false.
   #
   def allow?
     filter_attributes :udp_src_port, :udp_dst_port
@@ -109,11 +117,11 @@ end
 
 class DnsTcpFilter < AuthenticationFilter
   #
-  # Checks the tcp src/dst port value of a packet in to determine if it should
-  # pass the authentication or not. To pass the udp src or dst port must
-  # have the value of 53 (DNS TCP port number).
+  # Inspects the TCP source or destination port of a packet in. To pass
+  # authentication the TCP source or destination port must be
+  # 53 (DNS TCP port).
   #
-  # @return [Boolean] true if matched otherwise false.
+  # @return [Boolean] true if passes authentication otherwise false.
   #
   def allow?
     filter_attributes :tcp_src_port, :tcp_dst_port
@@ -124,11 +132,11 @@ end
 
 class ArpFilter < AuthenticationFilter
   #
-  # Checks if the packet in is an arp packet in order to determine if it should
-  # pass the authentication or not.
+  # Passes the authentication if the packet in is an arp packet.
   #
   # @return [Boolean] 
-  #   true if user packet in is an arp packet otherwise false.
+  #   true if user packet in is an arp packet and passes the authentication 
+  #   otherwise false.
   #
   def allow?
     filter_attributes :arp

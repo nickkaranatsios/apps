@@ -33,10 +33,13 @@ class RedirectableRoutingSwitch < Trema::Controller
 
 
   #
-  # A redirectable routing switch it behaves like any other routing switch
+  # A redirectable routing switch behaves like any other routing switch
   # with an additional authentication and redirection function. Un-authorized
   # host packets would be redirected to a pre-defined device. Learned
   # authorized packets would be forward to destination as normal.
+  # After verifying its command line options assigns singleton instances of
+  # authenticator and redirector classes. It then starts the router waiting and
+  # responding to events.
   #
   def start
     opts = RedirectableRoutingSwitchOptions.parse( ARGV )

@@ -29,9 +29,9 @@ module TopologyClient
   # Notify observers about topology changes.
   #
   # @param [TopologyPortStatus,TopologyLinkStatus] :message
-  #   an instance of class TopologyPortStatus or TopologyLinkStatus.
+  #   an instance of TopologyPortStatus or TopologyLinkStatus.
   #
-  # @param [Symbol] :kind
+  # @param [Symbol] kind
   #   the message kind.
   #
   def topology_notifier message, kind

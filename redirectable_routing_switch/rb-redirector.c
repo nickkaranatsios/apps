@@ -28,7 +28,7 @@ static uint8_t initialized = 0;
 
 
 /*
- * Routes non-authorized packets via a tun device to a destination host.
+ * Routes non-authorized packets using a tun device to a destination host.
  * If initializer called multiple times an already initialized instance
  * is returned.
  *
@@ -60,12 +60,11 @@ rb_init_redirector( VALUE self ) {
  * Writes the unauthorized packet to a pre-configured tun device. The packet
  * could then forwarded to another host by using iptables.
  *
- * @param [Number] :datapath_id
+ * @param [Number] datapath_id
  *   the message originator.
  *
- * @param [PacketIn] :message
+ * @param [PacketIn] message
  *   the message to redirect.
- *
  */
 static VALUE
 rb_redirect( VALUE self, VALUE datapath_id, VALUE message ) {
@@ -80,10 +79,8 @@ rb_redirect( VALUE self, VALUE datapath_id, VALUE message ) {
 
 
 /*
- * Finalizes releases previously acquired resources and resets state 
+ * Finalizes/releases previously acquired resources and resets state 
  * variables to be initialized again if required.
- * 
- * @return [void]
  */
 static VALUE
 rb_finalize_redirector( VALUE self ) {

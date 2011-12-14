@@ -26,6 +26,11 @@ class RoutingSwitch < Controller
   include Router
 
 
+  #
+  # Starts the routing switch after parsing its options. This involves starting
+  # all its supported applications like the topology service. It then listens
+  # and responds to events.
+  #
   def start
     start_router RoutingSwitchOptions.parse( ARGV )
   end
