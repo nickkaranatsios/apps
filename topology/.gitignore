@@ -1,0 +1,11 @@
+*.a
+*.log
+*.o
+*.so
+*.swp
+*~
+.depends
+Makefile
+show_topology
+topology
+topology_discovery
