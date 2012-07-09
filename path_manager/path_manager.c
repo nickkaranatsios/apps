@@ -155,6 +155,16 @@ static void
 handle_flow_removed( uint64_t datapath_id, uint32_t transaction_id, struct ofp_match match, uint64_t cookie,
                      uint16_t priority, uint8_t reason, uint32_t duration_sec, uint32_t duration_nsec,
                      uint16_t idle_timeout, uint64_t packet_count, uint64_t byte_count, void *user_data ) {
+  UNUSED( transaction_id );
+  UNUSED( cookie );
+  UNUSED( priority );
+  UNUSED( reason );
+  UNUSED( duration_sec );
+  UNUSED( duration_nsec );
+  UNUSED( idle_timeout );
+  UNUSED( packet_count );
+  UNUSED( byte_count );
+  UNUSED( user_data );
   char match_string[ 256 ];
   match_to_string( &match, match_string, sizeof( match_string ) );
   info( "Flow removed received from %#" PRIx64 " ( match = [%s] ).", datapath_id, match_string );
