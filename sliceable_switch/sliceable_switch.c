@@ -177,6 +177,7 @@ discard_packet_in( uint64_t datapath_id, uint16_t in_port, const buffer *packet 
 static void
 make_path( sliceable_switch *sliceable_switch, uint64_t in_datapath_id, uint16_t in_port, uint16_t in_vid,
            uint64_t out_datapath_id, uint16_t out_port, uint16_t out_vid, const buffer *packet ) {
+  UNUSED( in_vid );
   dlist_element *hops = resolve_path( sliceable_switch->pathresolver, in_datapath_id, in_port, out_datapath_id, out_port );
   if ( hops == NULL ) {
     warn( "No available path found ( %#" PRIx64 ":%u -> %#" PRIx64 ":%u ).",
@@ -266,7 +267,7 @@ port_status_updated( void *user_data, const topology_port_status *status ) {
     struct ofp_match match;
     memset( &match, 0, sizeof( struct ofp_match ) );
     match.wildcards = OFPFW_ALL;
-    match.wildcards &= ~OFPFW_IN_PORT;
+    match.wildcards &= ( uint32_t ) ~OFPFW_IN_PORT;
     match.in_port = status->port_no;
     teardown_path_by_match( match );
   }
