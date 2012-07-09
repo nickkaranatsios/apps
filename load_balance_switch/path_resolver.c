@@ -425,7 +425,7 @@ handle_stats_reply( uint64_t datapath_id, uint32_t transaction_id,
     else {
       diff_bytes = UINT64_MAX - s->tx_bytes + stats->tx_bytes;
     }
-    s->utilization = diff_bytes / 100; // FIXME: magic number
+    s->utilization = ( uint32_t ) ( diff_bytes / 100 ); // FIXME: magic number
     s->tx_bytes = stats->tx_bytes;
     s->updated_at = time( NULL );
   }

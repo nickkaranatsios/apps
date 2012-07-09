@@ -144,10 +144,10 @@ make_path( routing_switch *routing_switch, uint64_t in_datapath_id, uint16_t in_
   }
 
   // ask path manager to install flow entries
-  size_t length = offsetof( path_manager_path, hops ) + sizeof( path_manager_hop ) * count_hops( hops );
+  size_t length = offsetof( path_manager_path, hops ) + sizeof( path_manager_hop ) * ( uint32_t ) count_hops( hops );
   path_manager_path *path = xmalloc( length );
   set_match_from_packet( &path->match, OFPP_NONE, 0, packet );
-  path->n_hops = count_hops( hops );
+  path->n_hops = ( uint16_t ) count_hops( hops );
   dlist_element *e = get_first_element( hops );
   for( int i = 0; e != NULL; e = e->next, i++ ) {
     path_resolver_hop *hop = e->data;
